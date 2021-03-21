@@ -1,0 +1,59 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Mobile Tactics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HTML5 GameLoop Template">
+    <meta name="author" content="UI Programming">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="white" />
+    <link rel="apple-touch-icon" href="img/icons/MotorIconL.png">
+
+    <!--StyleSheet-->
+    <link rel="stylesheet" href="css/push.css">
+    <link href='https://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+</head>
+
+<body onload="onPageLoad()">
+  <h1 id="score"></h1></br>
+   <div style = "text-align:center;">
+    <canvas tabindex="0" id="game" style="border: black 1px solid;"
+      onmousedown="tappingBoard(event)">
+        Oops! looks like your browser does not support canvas tag
+    </canvas>
+    </div>
+
+    <audio src="sfx/Cheer.mp3" id="Cheers">
+        Oops! looks like your browser does not support audio tag
+    </audio>
+
+    <audio src="sfx/ButtonSound.wav" id="ButtonSound">
+        Oops! looks like your browser does not support audio tag
+    </audio>
+
+    <table>
+        <tbody>
+            <tr>
+                <td>&nbsp;</td>
+                <td><button onmousedown="input()" class="button yellow round" onmouseup="input('None')">Y</button></td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td><button onmousedown="input()" class="button blue round"onmouseup="input('None')">X</button></td>
+                <td>&nbsp;</td>
+                <td><button onmousedown="input()" class="button red round"onmouseup="input('None')">B</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+
+    <!--JavaScript File-->
+    <script src="js/script.js"></script>
+    <script src="register.js"></script>
+</html>
