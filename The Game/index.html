@@ -20,7 +20,28 @@
 </head>
 
 <body onload="onPageLoad()">
-  <h1 id="score"></h1></br>
+
+  <div class="row" id="dropBox">
+    <div class="column">
+        <p id="unit name">Unit 1</p>
+        <div id="unit health"class="healthBar">20/20</div>
+    </div>
+    <div class="column">
+        <p id="unit range">Range: 2</p>
+        <p id="unit movement">Speed: 1</p>
+            <p id="unit attack">Attack: 3</p>
+    </div>
+    <div class="column">
+        <p>Element</p>
+        <img id="closeUp" alt="Element of currently selected Unit"></img>
+    </div>
+</div>
+
+
+
+<div class="rightInfo">
+
+</div>
    <div style = "text-align:center;">
     <canvas tabindex="0" id="game" style="border: black 1px solid;"
       onmousedown="tappingBoard(event)">
@@ -28,25 +49,15 @@
     </canvas>
     </div>
 
-    <audio src="sfx/Cheer.mp3" id="Cheers">
-        Oops! looks like your browser does not support audio tag
-    </audio>
-
-    <audio src="sfx/ButtonSound.wav" id="ButtonSound">
-        Oops! looks like your browser does not support audio tag
-    </audio>
-
     <table>
         <tbody>
             <tr>
                 <td>&nbsp;</td>
-                <td><button onmousedown="input()" class="button yellow round" onmouseup="input('None')">Y</button></td>
+                <td><button class="button yellow round" onmouseup="EndTurn()">End Turn</button></td>
                 <td>&nbsp;</td>
-            </tr>
-            <tr>
-                <td><button onmousedown="input()" class="button blue round"onmouseup="input('None')">X</button></td>
+                <td><button onmousedown="input()" class="button blue round"onmouseup="input('None')">Settings</button></td>
                 <td>&nbsp;</td>
-                <td><button onmousedown="input()" class="button red round"onmouseup="input('None')">B</button></td>
+                <td><button onmousedown="input()" class="button red round"onmouseup="input('None')">Predict</button></td>
             </tr>
         </tbody>
     </table>

@@ -1,77 +1,99 @@
 {
-	"Unit1": {
-		"position": {
-			"x": 0,
-			"y": 2
+	"units" : {
+		"Unit1": {
+			"position": {
+				"x": 0,
+				"y": 2
+			},
+			"name": "Unit 1",
+			"element": "Wind",
+			"health": 20,
+			"range" : 2,
+			"attack": 3,
+			"movement": 1
 		},
-		"name": "Unit 1",
-		"element": "Wind",
-		"health": 20,
-		"range" : 2,
-		"attack": 3
 
+		"Unit2": {
+			"position": {
+				"x": 1,
+				"y": 4
+			},
+			"name": "Unit 2",
+			"element": "Fire",
+			"health": 25,
+			"range" : 1,
+			"attack": 4,
+			"movement": 1
+
+		},
+
+		"Unit3": {
+			"position": {
+				"x": 0,
+				"y": 5
+			},
+			"name": "Unit 3",
+			"element": "Ice",
+			"health": 30,
+			"range" : 1,
+			"attack": 5,
+			"movement": 1
+		},
+
+		"Enemy1": {
+			"position": {
+				"x": 3,
+				"y": 1
+			},
+			"name": "Enemy 1",
+			"element": "Ice",
+			"health": 20,
+			"range" : 1,
+			"attack": 4,
+			"movement": 1
+		},
+
+		"Enemy2": {
+			"position": {
+				"x": 2,
+				"y": 7
+			},
+			"name": "Enemy 2",
+			"element": "Fire",
+			"health": 25,
+			"range" : 1,
+			"attack": 3,
+			"movement": 1
+		},
+
+		"Enemy3": {
+			"position": {
+				"x": 4,
+				"y": 4
+			},
+			"name": "Enemy 3",
+			"element": "Wind",
+			"health": 20,
+			"range" : 2,
+			"attack": 3,
+			"movement": 1
+		},
+
+		"image": "./img/Unit.png"
 	},
 
-	"Unit2": {
-		"position": {
-			"x": 1,
-			"y": 4
+	"elements":
+	{
+		"icons":
+		{
+
 		},
-		"name": "Unit 2",
-		"element": "Fire",
-		"health": 25,
-		"range" : 1,
-		"attack": 4
 
-	},
-
-	"Unit3": {
-		"position": {
-			"x": 0,
-			"y": 5
-		},
-		"name": "Unit 3",
-		"element": "Ice",
-		"health": 30,
-		"range" : 1,
-		"attack": 5
-	},
-
-	"Enemy1": {
-		"position": {
-			"x": 3,
-			"y": 1
-		},
-		"name": "Enemy 1",
-		"element": "Ice",
-		"health": 20,
-		"range" : 1,
-		"attack": 4
-	},
-
-	"Enemy2": {
-		"position": {
-			"x": 2,
-			"y": 7
-		},
-		"name": "Enemy 2",
-		"element": "Fire",
-		"health": 25,
-		"range" : 1,
-		"attack": 3
-	},
-
-	"Enemy3": {
-		"position": {
-			"x": 4,
-			"y": 4
-		},
-		"name": "Enemy 3",
-		"element": "Wind",
-		"health": 20,
-		"range" : 2,
-		"attack": 3
-	},
-
-	"image": "./img/Unit.png"
+		"CloseUp":
+		{
+			"fire": "./img/ElementsCloseUp/flame.png",
+			"ice" :"./img/ElementsCloseUp/ice.png",
+			"wind":"./img/ElementsCloseUp/wind.png"
+		}
+	}
 }

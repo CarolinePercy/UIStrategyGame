@@ -2,33 +2,46 @@
     background-color: #000000;
     border: none;
     box-shadow: 0 9px#505050;
-    padding: 15px;
+    padding: 2vh;
+    font-size: 3vh;
     text-align: center;
-    font-size: 14px;
+
+    margin: 0;
+    position: absolute;
+    left: 50%;
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
+
+    height: 10vh;
 }
 
 .button:hover {
     background-color: #3f3f3f;
 }
 
+.button:disabled
+{
+  background-color: #3f3f3f;
+  box-shadow: 0 5px #3d3d3d;
+  transform: translateX(-50%) translateY(4px);
+}
+
 .button:active {
     box-shadow: 0 5px #3d3d3d;
-    transform: translateY(4px);
+    transform: translateX(-50%) translateY(4px);
 }
 
 .red {
     color: #FF0000;
 }
 
-.green {
-    color: #00FF00;
-}
-
 .blue {
-    color: #0000FF;
+      margin-left: -15vh;
+    color: #00ffff;
 }
 
 .yellow {
+      margin-left: 15vh;
     color: #FFFF00;
 }
 
@@ -36,112 +49,58 @@
     border-radius: 50%;
 }
 
-.switch {
-  position: relative;
-  /* No line-break after the element, so the element can sit next to other elements.*/
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-
-}
-
-.switch input {
-  /* This makes the default checkbox disappear */
-  opacity: 0;
-  width: 0px;
-  height: 0px;
-}
-
-.toggle {
-  position: absolute;
-  cursor: pointer;
-  top: 30px;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
-  padding: 1px 1px 1px 1px;
-  border: 1px solid #C0C0C0;
-  height: 34px;
-  border-radius: 20px;
-
-  /* WebKit */
-  -webkit-transition: 0.5s;
-  /* Mozilla */
-  -moz-transition: 0.5s;
-  /* Opera */
-  -o-transition: 0.5s;
-  /* Internet Explorer */
-  -ms-transition: 0.5s;
-  /* CSS3 */
-  transition: 0.5s;
-}
-
-.toggle:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 5px;
-  bottom: 5px;
-  background-color: #000000;
-  border-radius: 20px;
-
-  /* WebKit */
-  -webkit-transition: 0.5s;
-  /* Mozilla */
-  -moz-transition: 0.5s;
-  /* Opera */
-  -o-transition: 0.5s;
-  /* Internet Explorer */
-  -ms-transition: 0.5s;
-  /* CSS3 */
-  transition: 0.5s;
-
-}
-
-
-input:checked+.toggle {
-  background-color: #FF0000;
-}
-
-input:checked+.toggle:before {
-  /* WebKit */
-  -webkit-transform: translateX(26px);
-  /* Mozilla */
-  -moz-transform: translateX(26px);
-  /* Opera */
-  -o-transform: translateX(26px);
-  /* Internet Explorer */
-  -ms-transform: translateX(26px);
-  /* CSS3 */
-  transform: translateX(26px);
-}
-
-canvas#game
+.healthBar
 {
-  height: 70vh;
-  width: 50vh;
+  height: 5vh;
+  width: 70%;
+  background-color: #4287f5;
+  font-size: 2.5vh;
+  position: relative;
+  left:50%;
+  margin-left: -35%;
+     line-height: 5vh;
+   text-align: center;
 }
 
+.emptyBar
+{
+  height: 5vh;
+  width: 10vh;
+  background-color: #555;
+}
 
-/* Select Styling*/
-select {
-  position: relative;
-  top: 20px;
-  width: 200px;
-  padding: 5px 5px 5px 5px;
-  font-size: 16px;
-  border: 1px solid #C0C0C0;
-  height: 34px;
-  border-radius: 20px;
+.row{
+    visibility: hidden;
+}
 
-  /* WebKit */
-  -webkit-appearance: none;
-  /* Mozilla */
-  -moz-appearance: none;
-  /* Opera */
-  -o-appearance: none;
-  /* Internet Explorer */
-  -ms-appearance: none;
-  /* CSS3 */
-  appearance: none;
+.row::after
+{
+  content: "";
+display: table;
+clear: both;
+}
+
+.column
+{
+  margin: auto;
+  font-size: 3vh;
+  text-align: center;
+  float: left;
+  width: 33.33%;
+  line-height: 30%;
+
+}
+
+html, body
+{
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+#closeUp
+{
+  transform:translate(0%,-20%);
+    position: relative;
+  height: 8vh;
+}

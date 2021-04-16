@@ -9,20 +9,29 @@ var context = canvas.getContext("2d"); // Allows the file to draw to canvas
 var cheerSound = document.getElementById("Cheers"); // sound that plays when NPC and Player intersect
 var buttonSound = document.getElementById("ButtonSound"); // sound that plays when NPC and Player intersect
 var selectBox = document.getElementById('equipment');
+var elementCloseUp = document.getElementById('closeUp');
+var dropDownWindow = document.getElementById("dropBox");
 
-//canvas.addEventListener("click", tappingBoard, false);
+var playersTurn = true;
 
 function Box(x, y)
 {
   this.x = x;
   this.y = y;
-  this.width = 59;
-  this.height = 18;
+  this.width = 60;
+  this.height = 60;
   this.rows = 8;
   this.col = 5;
   this.totalX = this.col * this.width;
   this.totalY = this.rows  * this.height;
 }
+
+var unitsTurnDone =
+[
+  false,
+  false,
+  false
+]
 
 var boxTypes =
 [
@@ -59,30 +68,43 @@ let colours = [
 [boxTypes[0][0],boxTypes[0][0],boxTypes[0][0],boxTypes[0][0],boxTypes[0][0]]
 ];
 
-// Methods/Classes after
 
 // GameObject (both NPC and Player)
-function Unit(img, x, y, health, range, attack, movement, name, width, height)
+function Unit(img, x, y, health, range, attack, movement, name, width, height, element)
 {
     this.img = new Image();
     this.img.src = img;
+
+    this.icon = new Image();
+    this.icon.src = "./img/icons/ElementIcons/Icon_Element_" + element + ".png";
 
     this.name = name;
 
     this.x = x;
     this.y = y;
 
+    this.destinationX = x;
+    this.destinationY = y;
+
     this.health = health;
+    this.maxHealth = health;
     this.range = range;
     this.attack = attack;
     this.movement = movement;
 
     this.width = width;
     this.height = height;
+
+    this.element = element;
 }
+
+var elementImages;
 
 var selectedUnits =
 [
+  false,
+  false,
+  false,
   false,
   false,
   false
@@ -94,7 +116,17 @@ function GamerInput(input)
     this.action = input;
 }
 
+function GameState(input) // Keeps track of players vs enemy turn, win and lose screens
+{
+  this.screen = input;
+}
+
 var gamerInput = new GamerInput("None"); //No Input
+var gameStates =
+[
+  new GameState("Player"),
+  new GameState("Player")
+];
 // Default GamerInput is set to None
 
 var xmlhttp = new XMLHttpRequest();
@@ -104,13 +136,13 @@ var xmlhttp = new XMLHttpRequest();
 var numOfUnits = 6;
 var units =
 [
-  new Unit("./favicon.ico", 0,0,0,0,0,0, "",0,0),
-  new Unit("./favicon.ico", 0,0,0,0,0,0, "",0,0),
-  new Unit("./favicon.ico", 0,0,0,0,0,0, "",0,0),
+  new Unit("./favicon.ico", 0,0,0,0,0,0, "",0,0, "Fire"),
+  new Unit("./favicon.ico", 0,0,0,0,0,0, "",0,0, "Fire"),
+  new Unit("./favicon.ico", 0,0,0,0,0,0, "",0,0, "Fire"),
 
-  new Unit("./favicon.ico", 0,0,0,0,0,0, "",0,0),
-  new Unit("./favicon.ico", 0,0,0,0,0,0, "",0,0),
-  new Unit("./favicon.ico", 0,0,0,0,0,0, "",0,0)
+  new Unit("./favicon.ico", 0,0,0,0,0,0, "",0,0, "Fire"),
+  new Unit("./favicon.ico", 0,0,0,0,0,0, "",0,0, "Fire"),
+  new Unit("./favicon.ico", 0,0,0,0,0,0, "",0,0, "Fire")
 ];
 
 function onPageLoad()
@@ -131,12 +163,12 @@ function onPageLoad()
 
         data = JSON.parse(this.responseText);
 
-          U1Data = data.Unit1;
-          U2Data = data.Unit2;
-          U3Data = data.Unit3;
-          E1Data = data.Enemy1;
-          E2Data = data.Enemy2;
-          E3Data = data.Enemy3;
+          U1Data = data.units.Unit1;
+          U2Data = data.units.Unit2;
+          U3Data = data.units.Unit3;
+          E1Data = data.units.Enemy1;
+          E2Data = data.units.Enemy2;
+          E3Data = data.units.Enemy3;
 
           //if (isNaN(playerXPos) || isNaN(playerYPos) || (playerXPos == 0 && playerYPos == 0) )
           //{
@@ -145,26 +177,38 @@ function onPageLoad()
           //  playerXPos = parseInt(localStorage.getItem('xPos'));
           //  playerYPos = parseInt(localStorage.getItem('yPos'))
           //}
-          var h = 14;
-          var w = 20;
+          var h = 40;
+          var w = 40;
 
-          units[0] = new Unit(data.image, U1Data.position.x, U1Data.position.y,
-          U1Data.health, U1Data.range, U1Data.attack, U1Data.movement, U1Data.name, w, h);
+          units[0] = new Unit(data.units.image, U1Data.position.x, U1Data.position.y,
+          U1Data.health, U1Data.range, U1Data.attack, U1Data.movement, U1Data.name, w, h, U1Data.element);
 
-          units[1] = new Unit(data.image, U2Data.position.x, U2Data.position.y,
-          U2Data.health, U2Data.range, U2Data.attack, U2Data.movement, U2Data.name, w, h);
+          units[1] = new Unit(data.units.image, U2Data.position.x, U2Data.position.y,
+          U2Data.health, U2Data.range, U2Data.attack, U2Data.movement, U2Data.name, w, h, U2Data.element);
 
-          units[2] = new Unit(data.image, U3Data.position.x, U3Data.position.y,
-          U3Data.health, U3Data.range, U3Data.attack, U3Data.movement, U3Data.name, w, h);
+          units[2] = new Unit(data.units.image, U3Data.position.x, U3Data.position.y,
+          U3Data.health, U3Data.range, U3Data.attack, U3Data.movement, U3Data.name, w, h, U3Data.element);
 
-          units[3] = new Unit(data.image, E1Data.position.x, E1Data.position.y,
-          E1Data.health, E1Data.range, E1Data.attack, E1Data.movement, E1Data.name, w, h);
+          units[3] = new Unit(data.units.image, E1Data.position.x, E1Data.position.y,
+          E1Data.health, E1Data.range, E1Data.attack, E1Data.movement, E1Data.name, w, h, E1Data.element);
 
-          units[4] = new Unit(data.image, E2Data.position.x, E2Data.position.y,
-          E2Data.health, E2Data.range, E2Data.attack, E2Data.movement, E2Data.name, w, h);
+          units[4] = new Unit(data.units.image, E2Data.position.x, E2Data.position.y,
+          E2Data.health, E2Data.range, E2Data.attack, E2Data.movement, E2Data.name, w, h, E2Data.element);
 
-          units[5] = new Unit(data.image, E3Data.position.x, E3Data.position.y,
-          E3Data.health, E3Data.range, E3Data.attack, E3Data.movement, E3Data.name, w, h);
+          units[5] = new Unit(data.units.image, E3Data.position.x, E3Data.position.y,
+          E3Data.health, E3Data.range, E3Data.attack, E3Data.movement, E3Data.name, w, h, E3Data.element);
+
+          elementImages =
+          [
+            data.elements.CloseUp.wind,
+            data.elements.CloseUp.fire,
+            data.elements.CloseUp.ice
+          ]
+          elementCloseUp.src = elementImages[0];
+
+          displayWindowSize();
+
+
       }
     };
 }
@@ -306,98 +350,147 @@ function attackUnit(boxX, boxY, i)
         {
             moveUnit(originalUnit, boxX + x, boxY + y);
             units[i].health = 0;
+            selectedUnits[i] = false;
+            unitsTurnDone[originalUnit] = true;
             break;
         }
       }
 
     }
   }
+
+  resetSelection();
 }
 
-function selectUnit(boxX, boxY, i)
+function selectAUnit(boxX, boxY, unitInside)
 {
-  gamerInput = new GamerInput("Movement");
-
-  colours[boxY][boxX] = boxTypes[3][0];
-
-for (var x = -1; x < 2; x++)
-{
-  for (var y = -1; y < 2; y++)
+  if (unitInside >= 3)
   {
-    if (boxY + y < box.rows &&
-      boxY + y >= 0 &&
-      boxX + x >= 0 &&
-      boxX + x < box.col &&
-      colours[boxY + y][boxX + x] != boxTypes[1][0] &&
-      Math.abs(x) + Math.abs(y) <= 1)
+     selectedEnemy(boxX, boxY, unitInside);
+  }
+
+  else if (selectedUnits[unitInside])
+ {
+     resetSelection();
+     selectedUnits[unitInside] = true;
+     selectOwnUnit(boxX, boxY, unitInside);
+ }
+
+ else
+  {
+    selectedUnits[unitInside] = false;
+    resetColour(boxX, boxY, unitInside);
+    gamerInput = new GamerInput("None");
+  }
+}
+
+function letOwnUnitMove(boxX, boxY, i)
+{
+  for (var x = -1; x < 2; x++)
+  {
+    for (var y = -1; y < 2; y++)
     {
-      colours[boxY + y][boxX + x] = boxTypes[3][0];
+      if (boxY + y < box.rows &&
+        boxY + y >= 0 &&
+        boxX + x >= 0 &&
+        boxX + x < box.col &&
+        colours[boxY + y][boxX + x] != boxTypes[1][0] &&
+        Math.abs(x) + Math.abs(y) <= 1)
+      {
+        colours[boxY + y][boxX + x] = boxTypes[3][0];
+      }
+    }
+  }
+
+  for (var x = -2; x <= 2; x++)
+  {
+    for (var y = -2; y <= 2; y++)
+    {
+      if (boxY + y < box.rows &&
+        boxY + y >= 0 &&
+        boxX + x >= 0 &&
+        boxX + x < box.col &&
+        colours[boxY + y][boxX + x] != boxTypes[1][0] &&
+        Math.abs(x) + Math.abs(y) == 2)
+      {
+        var valid = false;
+        if (Math.abs(x) >= 1)
+        {
+          if (x < 1 && colours[boxY][boxX - 1] != boxTypes[1][0])
+          {
+            valid = true;
+          }
+
+          else if (x >= 1 && colours[boxY][boxX + 1] != boxTypes[1][0])
+          {
+            valid = true;
+          }
+        }
+
+        if (Math.abs(y) >= 1)
+        {
+          if (y < 1 && colours[boxY - 1][boxX] != boxTypes[1][0])
+          {
+            valid = true;
+          }
+
+          else if (y >= 1 && colours[boxY + 1][boxX] != boxTypes[1][0])
+          {
+            valid = true;
+          }
+        }
+
+        if (valid)
+        {
+              colours[boxY + y][boxX + x] = boxTypes[2][0];
+        }
+      }
     }
   }
 }
 
-for (var x = -2; x <= 2; x++)
+function selectOwnUnit(boxX, boxY, i)
+ {
+   colours[boxY][boxX] = boxTypes[3][0];
+
+   if (!unitsTurnDone[i])
+   {
+     letOwnUnitMove(boxX, boxY, i);
+     gamerInput = new GamerInput("Movement");
+   }
+ }
+
+function checkWhetherToMoveUnit(boxX, boxY, unitInside)
 {
-  for (var y = -2; y <= 2; y++)
+  if (gamerInput.action === "Movement")
   {
-    if (boxY + y < box.rows &&
-      boxY + y >= 0 &&
-      boxX + x >= 0 &&
-      boxX + x < box.col &&
-      colours[boxY + y][boxX + x] != boxTypes[1][0] &&
-      Math.abs(x) + Math.abs(y) == 2)
+    for (var i = 0; i < 3; i++)
     {
-      var valid = false;
-      if (Math.abs(x) >= 1)
+      if (selectedUnits[i] &&
+        colours[boxY][boxX] === boxTypes[3][0])
       {
-        if (x < 1 && colours[boxY][boxX - 1] != boxTypes[1][0])
-        {
-          valid = true;
-        }
-
-        else if (x >= 1 && colours[boxY][boxX + 1] != boxTypes[1][0])
-        {
-          valid = true;
-        }
+        moveUnit(i, boxX, boxY);
+        resetSelection();
       }
 
-      if (Math.abs(y) >= 1)
-      {
-        if (y < 1 && colours[boxY - 1][boxX] != boxTypes[1][0])
-        {
-          valid = true;
-        }
-
-        else if (y >= 1 && colours[boxY + 1][boxX] != boxTypes[1][0])
-        {
-          valid = true;
-        }
-      }
-
-      if (valid)
-      {
-            colours[boxY + y][boxX + x] = boxTypes[2][0];
-      }
     }
   }
-}
 
+  resetSelection();
 }
 
 function moveUnit(i, boxX, boxY)
 {
-  console.log("Unit: " + i);
-    resetSelection();
-
-  units[i].x = boxX;
-  units[i].y = boxY;
-
+  resetSelection();
+  units[i].destinationX = boxX;
+  units[i].destinationY = boxY;
+  unitsTurnDone[i] = true;
   //gamerInput.action = "None";
 }
 
 function resetSelection()
 {
-  for (var i = 0; i < 3; i++)
+  for (var i = 0; i < numOfUnits; i++)
   {
     selectedUnits[i] = false;
     resetColour(units[i].x, units[i].y, i);
@@ -405,128 +498,321 @@ function resetSelection()
 
       gamerInput = new GamerInput("None");
 }
+
+function findUnitInBox(boxX, boxY, unitInside)
+{
+  for (var a = 0; a < numOfUnits; a++)
+  {
+    if (boxX == units[a].x && boxY == units[a].y && units[a].health > 0)
+    {
+        unitInside = a;
+        selectedUnits[a] = !selectedUnits[a];
+
+      for (var i = 0; i < numOfUnits; i++)
+      {
+        if (i == a)
+        {
+          i++;
+        }
+      }
+      break;
+    }
+  }
+
+  return unitInside;
+}
+
+function selectedEnemy(boxX, boxY, unitInside)
+{
+  if (gamerInput.action === "Movement" && (colours[boxY][boxX] === boxTypes[2][0] ||
+   colours[boxY][boxX] === boxTypes[3][0]))
+   {
+    attackUnit(boxX, boxY, unitInside);
+    }
+
+  else if (selectedUnits[unitInside])
+    {
+    resetSelection();
+    selectedUnits[unitInside] = true;
+    colours[boxY][boxX] = boxTypes[2][0];
+    }
+
+  else
+    {
+        resetColour(boxX, boxY, unitInside);
+    }
+}
+
 // Process keyboard input event
 function tappingBoard(e)
 {
-  var mouseCoords = getBoxCoordinates(e);
-  var boxX = mouseCoords[0];
-  var boxY = mouseCoords[1];
-  var unitInside = -1;
-
- for (var a = 0; a < 3; a++)
- {
-   if (boxX == units[a].x && boxY == units[a].y && units[a].health > 0)
-   {
-       unitInside = a;
-       selectedUnits[a] = !selectedUnits[a];
-
-     for (var i = 0; i < 3; i++)
-     {
-       if (i == a)
-       {
-         i++;
-       }
-         selectedUnits[i] = false;
-         resetColour(units[i].x, units[i].y, i);
-
-     }
-     break;
-   }
- }
-
- for (var a = 3; a < numOfUnits; a++)
- {
-   if (boxX == units[a].x && boxY == units[a].y && units[a].health > 0)
-   {
-     if (gamerInput.action === "Movement" && (colours[boxY][boxX] == boxTypes[2][0] ||
-   colours[boxY][boxX] == boxTypes[3][0]) && a >= 3)
-     {
-       attackUnit(boxX, boxY, a);
-     }
-
-     for (var i = 0; i < 3; i++)
-     {
-       if (i == a)
-       {
-         i++;
-       }
-         selectedUnits[i] = false;
-         resetColour(units[i].x, units[i].y, i);
-
-     }
-          break;
-   }
-   }
-
- if (unitInside != -1 && gamerInput.action === "None")
- {
-   console.log("Unit select test");
-    if (selectedUnits[unitInside])
-    {
-      selectUnit(boxX, boxY, unitInside);
-    }
-
-    else
-     {
-       gamerInput = new GamerInput("None");
-       resetColour(boxX, boxY, unitInside);
-      }
- }
-
-else
+  if (gameStates[1].screen === "Player")
   {
-    var moved = false;
-    console.log("Move test: " + gamerInput.action);
-    if (gamerInput.action === "Movement")
-    {
-      for (var i = 0; i < 3; i++)
-      {
-        if (selectedUnits[i] &&
-          colours[boxY][boxX] === boxTypes[3][0])
-        {
-          moveUnit(i, boxX, boxY);
-          var moved = true;
-        }
+    var mouseCoords = getBoxCoordinates(e);
+    var boxX = mouseCoords[0];
+    var boxY = mouseCoords[1];
+    var unitInside = findUnitInBox(boxX, boxY, -1);
 
+  if (unitInside != -1  && units[unitInside].health > 0)
+  {
+    selectAUnit(boxX, boxY, unitInside);
+  }
+
+  else
+    {
+      checkWhetherToMoveUnit(boxX, boxY, unitInside);
+    }
+  }
+}
+
+function unitDetails()
+{
+  dropDownWindow.style.visibility = "hidden";
+
+  for (var a = 0; a < numOfUnits; a++)
+  {
+    if (selectedUnits[a])
+    {
+        dropDownWindow.style.visibility = "visible";
+        document.getElementById("unit range").innerHTML = "Range: " + units[a].range;
+        document.getElementById("unit movement").innerHTML = "Speed: " + units[a].movement;
+        document.getElementById("unit attack").innerHTML = "Attack: " + units[a].attack;
+        document.getElementById("unit health").innerHTML = units[a].health + "/" + units[a].maxHealth;
+
+      switch (units[a].element) {
+        case "Fire":
+          elementCloseUp.src = elementImages[1];
+          break;
+
+          case "Ice":
+          elementCloseUp.src = elementImages[2];
+          break;
+
+          case "Wind":
+          elementCloseUp.src = elementImages[0];
+          break;
+        default:
+        break;
+      }
+    }
+  }
+}
+
+function animateUnitMovement()
+{
+  //console.log(units[0].x + ", " + units[0].destinationX);
+  //console.log(units[0].y + ", " + units[0].destinationY);
+  for (var a = 0; a < 3; a++)
+  {
+      if (units[a].x > units[a].destinationX + 0.05)
+      {
+        units[a].x -= 0.05;
       }
 
-      if (!moved)
+      else if (units[a].x < units[a].destinationX - 0.05)
       {
-        resetSelection();
+        units[a].x += 0.05;
+      }
+
+      else {
+        units[a].x = units[a].destinationX;
+      }
+
+      if (units[a].y > units[a].destinationY + 0.05)
+      {
+        units[a].y -= 0.05;
+      }
+
+      else if (units[a].y < units[a].destinationY - 0.05)
+      {
+        units[a].y += 0.05;
+      }
+
+      else
+      {
+        units[a].y = units[a].destinationY;
+      }
+  }
+}
+
+function playerTurnManagement()
+{
+  if (gameStates[0].screen != "Player")
+  {
+    gameStates[0] = new GameState("Player");
+    const buttons = document.querySelectorAll('button');
+
+    for (var i = 0; i < buttons.length; i++)
+    {
+      buttons[i].disabled = false;
+    }
+
+    for (var i = 0; i < 3; i++)
+    {
+      unitsTurnDone[i] = false;
+    }
+  }
+
+  else
+  {
+    var playersTurnDone = true;
+    for (var i = 0; i < 3; i++)
+    {
+      if (!unitsTurnDone[i])
+      {
+        playersTurnDone = false;
+        break;
       }
     }
 
-    else
+   if (playersTurnDone)
+     {
+     gameStates[1] = new GameState("Enemy");
+     }
+   }
+  }
+
+function enemyTurnManagement()
+{
+  if (gameStates[0].screen != "Enemy")
+  {
+    gameStates[0].screen = "Enemy";
+    const buttons = document.querySelectorAll('button');
+
+    for (var i = 0; i < buttons.length; i++)
     {
-      resetSelection();
+      buttons[i].disabled = true;
     }
 
- }
+    for (var i = 0; i < 3; i++)
+    {
+      unitsTurnDone[i] = false;
+    }
+
+  }
+
+  else
+  {
+    var enemiesTurnDone = true;
+    for (var i = 0; i < 3; i++)
+    {
+      if (!unitsTurnDone[i])
+      {
+        enemiesTurnDone = false;
+        break;
+      }
+    }
+
+   if (enemiesTurnDone)
+     {
+     gameStates[1] = new GameState("Player");
+     }
+  }
+}
+
+function turnManagement()
+{
+  switch (gameStates[1].screen)
+  {
+    case "Player":
+    playerTurnManagement();
+    break;
+
+    case "Enemy":
+    enemyTurnManagement();
+    break;
+
+    default:
+    console.log("Error: The Turn tracker is null!");
+    break;
+  }
+}
+
+function enemyDistanceCalculation(i)
+{
+  var closest = 0;
+  var distances = [0,0,0];
+
+  for (var j = 0; j < 3; j++)
+  {
+    distances[j] = Math.abs(units[i].x - units[j].x) + Math.abs(units[i].y - units[j].y);
+
+    if (distances[closest] > distances[j])
+    {
+      closest = j;
+    }
+  }
+
+  if (units[j].x > units[j].x && colours[units[j].x + 1][units[j].y] != boxTypes[1][0])
+  {
+    units[i].destinationX = units[j].x + 1;
+  }
+
+  else if (units[j].x < units[j].x && colours[units[j].x - 1][units[j].y] != boxTypes[1][0])
+  {
+    units[i].destinationX = units[j].x - 1;
+  }
+
+  else if (units[j].x > units[j].x && colours[units[j].x + 1][units[j].y] != boxTypes[1][0])
+  {
+
+  }
+
+  else if (units[j].x > units[j].x && colours[units[j].x + 1][units[j].y] != boxTypes[1][0])
+  {
+
+  }
+
+  else
+  {
+
+  }
+}
+
+function EndTurn()
+{
+  for (var i = 0; i < 3; i++)
+  {
+    unitsTurnDone[i] = true;
+  }
 }
 
 function update()
 {
-      if (gamerInput.action === "Left") // if user is pressing left, move player that way and flip image
-      {
-        units[0].x -= 1;
-        facingRight[0] = false;
-      }
+  turnManagement();
+  unitDetails();
+  animateUnitMovement();
+}
 
-      if (gamerInput.action === "Right") // else if user is pressing right, move right and make image back to how it originally was
-      {
-        units[0].x += 1;
-        facingRight[0] = true;
-      }
+function displayWindowSize()
+{
 
-      if (gamerInput.action === "Up")
-      {
-        units[0].y -= 1;
-      }
+   canvas.width  = window.innerHeight / 2.0;
+   canvas.height = (window.innerHeight / 10.0) * 7.0;
 
-      if (gamerInput.action === "Down")
-      {
-        units[0].y += 1;
-      }
+   if (canvas.width > window.outerWidth)
+   {
+       console.log("test");
+     canvas.width  = window.outerWidth;
+     canvas.height = (window.outerWidth / 5.0) * 7.0;
+   }
+
+   box.width = canvas.width / 5;
+   box.height = canvas.height / 8;
+
+   box.totalX = canvas.width;
+   box.totalY = canvas.height;
+
+   for (var i = 0; i < numOfUnits; i++)
+   {
+     units[i].width = box.width / 3;
+     units[i].height = box.height / 1.5;
+   }
+}
+
+function EnemyTurnStart()
+{
+  playersTurn = false;
 }
 
 // Draw GameObjects to Console
@@ -546,6 +832,9 @@ function animate()
   {
     if (units[i].health > 0)
     {
+      context.drawImage(units[i].icon, (units[i].x * box.width) + ((box.width / 1.5)),
+      (units[i].y * box.height) + ((box.height / 2.0) + (units[i].height / 5.0)), units[i].height/2.0, units[i].height/2.0);
+
       context.drawImage(units[i].img, (units[i].x * box.width) + ((box.width / 2.0) - (units[i].width / 2.0)),
       (units[i].y * box.height) + ((box.height / 2.0) - (units[i].height / 2.0)), units[i].width,units[i].height);
     }
@@ -571,8 +860,6 @@ function updatePlayerStorage()
 
   localStorage.setItem('Enemy3xPos', parseInt(units[5].x));
   localStorage.setItem('Enemy3xPos', parseInt(units[5].y));
-
-  //console.log(localStorage.getItem('xPos'));
 }
 
 // Gameloop that is forever gone through until program closes
@@ -585,5 +872,6 @@ function gameloop()
 
 // Handle Active Browser Tag Animation
 window.requestAnimationFrame(gameloop);
+window.addEventListener("resize", displayWindowSize);
 // Handle Keypressed
 //button.addEventListener("onclick", tappingBoard);
