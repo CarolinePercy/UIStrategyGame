@@ -32,45 +32,102 @@
 }
 
 .red {
+      padding: 1vh;
+  margin-left: -6vh;
     color: #FF0000;
+    font-size: 2.5vh;
+}
+.gameplay
+{
+  visibility: hidden;
 }
 
 .blue {
-      margin-left: -15vh;
+      padding: 1vh;
+      margin-left: -18vh;
     color: #00ffff;
+    font-size: 2.5vh;
 }
 
 .yellow {
-      margin-left: 15vh;
+
+      margin-left: 6vh;
     color: #FFFF00;
+}
+
+.white
+{
+  bottom: 10%;
+  color: #e6e6e6;
+}
+
+.left
+{
+  margin-left: -20%;
+}
+
+.right
+{
+  margin-left: 20%;
 }
 
 .round {
     border-radius: 50%;
 }
 
+.cycle
+{
+  margin: 0;
+  position: absolute;
+  left: 50%;
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%);
+
+  height: 10vh;
+  margin-left: 18vh;
+}
+
+.healthDetails
+{
+  position: absolute;
+  text-align: center;
+  width: 100%;
+}
+
 .healthBar
 {
+  position: absolute;
   height: 5vh;
-  width: 70%;
+  width: 96%;
   background-color: #4287f5;
-  font-size: 2.5vh;
-  position: relative;
-  left:50%;
-  margin-left: -35%;
-     line-height: 5vh;
-   text-align: center;
+  left:2%;
+  top: 1vh;
+  z-index: -1;
 }
 
 .emptyBar
 {
-  height: 5vh;
-  width: 10vh;
+  position: relative;
+  margin: auto;
+  height: 7vh;
+  width: 70%;
   background-color: #555;
+  z-index: -1;
 }
 
 .row{
     visibility: hidden;
+}
+
+.announcementText
+{
+  position: absolute;
+  text-align:center;
+  font-size: 5vh;
+  top:3%;
+  left:50%;
+  -ms-transform: translateX(-50%);
+  transform: translateX(-49%);
 }
 
 .row::after
@@ -90,7 +147,6 @@ clear: both;
   line-height: 30%;
 
 }
-
 html, body
 {
   width: 100%;
@@ -98,9 +154,57 @@ html, body
   margin: 0;
 }
 
+.textbox
+{
+  position: absolute;
+  margin:auto;
+  left:50%;
+  -ms-transform: translateX(-50%);
+  transform: translateX(-49%);
+  height: 10vh;
+  font-size: 4vh;
+  text-align: center;
+}
+
+.top
+{
+top:24%;
+}
+
+.middle
+{
+top:42%;
+}
+
+.bottom
+{
+top:60%;
+}
+
+.container
+{
+  top:0px;
+  position: absolute;
+  width:100%;
+  height: 100%;
+}
+
+.hidden
+{
+  visibility: hidden;
+}
+
 #closeUp
 {
   transform:translate(0%,-20%);
     position: relative;
   height: 8vh;
+}
+
+.unitSelection
+{
+  position: absolute;
+  width:100%;
+  height: 100%;
+  top:0vh;
 }

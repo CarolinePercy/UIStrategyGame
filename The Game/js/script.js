@@ -12,8 +12,6 @@ var selectBox = document.getElementById('equipment');
 var elementCloseUp = document.getElementById('closeUp');
 var dropDownWindow = document.getElementById("dropBox");
 
-var playersTurn = true;
-
 function Box(x, y)
 {
   this.x = x;
@@ -124,8 +122,8 @@ function GameState(input) // Keeps track of players vs enemy turn, win and lose 
 var gamerInput = new GamerInput("None"); //No Input
 var gameStates =
 [
-  new GameState("Player"),
-  new GameState("Player")
+  new GameState("Start"),
+  new GameState("Start")
 ];
 // Default GamerInput is set to None
 
@@ -147,6 +145,7 @@ var units =
 
 function onPageLoad()
 {
+  document.getElementById("gameplay").style.visibility = "hidden";
   xmlhttp.open("GET", "./data/level.json", true);
   xmlhttp.send();
 
@@ -163,13 +162,6 @@ function onPageLoad()
 
         data = JSON.parse(this.responseText);
 
-          U1Data = data.units.Unit1;
-          U2Data = data.units.Unit2;
-          U3Data = data.units.Unit3;
-          E1Data = data.units.Enemy1;
-          E2Data = data.units.Enemy2;
-          E3Data = data.units.Enemy3;
-
           //if (isNaN(playerXPos) || isNaN(playerYPos) || (playerXPos == 0 && playerYPos == 0) )
           //{
           //  localStorage.setItem('xPos', parseInt(U1Data.position.x));
@@ -180,23 +172,26 @@ function onPageLoad()
           var h = 40;
           var w = 40;
 
-          units[0] = new Unit(data.units.image, U1Data.position.x, U1Data.position.y,
-          U1Data.health, U1Data.range, U1Data.attack, U1Data.movement, U1Data.name, w, h, U1Data.element);
+          var unitsValues = [
+            data.units.Unit1,
+            data.units.Unit2,
+            data.units.Unit3,
+            data.units.Enemy1,
+            data.units.Enemy2,
+            data.units.Enemy3
+          ];
 
-          units[1] = new Unit(data.units.image, U2Data.position.x, U2Data.position.y,
-          U2Data.health, U2Data.range, U2Data.attack, U2Data.movement, U2Data.name, w, h, U2Data.element);
+            for (var i = 0; i < numOfUnits; i++)
+            {
+              units[i] = new Unit(data.units.image, unitsValues[i].position.x, unitsValues[i].position.y,
+              unitsValues[i].health, unitsValues[i].range, unitsValues[i].attack, unitsValues[i].movement, unitsValues[i].name, w, h, unitsValues[i].element);
+            }
 
-          units[2] = new Unit(data.units.image, U3Data.position.x, U3Data.position.y,
-          U3Data.health, U3Data.range, U3Data.attack, U3Data.movement, U3Data.name, w, h, U3Data.element);
+          //  for (var i = 0; i < 3; i++)
+          //  {
+          //    units[i].health = 0;
+          //  }
 
-          units[3] = new Unit(data.units.image, E1Data.position.x, E1Data.position.y,
-          E1Data.health, E1Data.range, E1Data.attack, E1Data.movement, E1Data.name, w, h, E1Data.element);
-
-          units[4] = new Unit(data.units.image, E2Data.position.x, E2Data.position.y,
-          E2Data.health, E2Data.range, E2Data.attack, E2Data.movement, E2Data.name, w, h, E2Data.element);
-
-          units[5] = new Unit(data.units.image, E3Data.position.x, E3Data.position.y,
-          E3Data.health, E3Data.range, E3Data.attack, E3Data.movement, E3Data.name, w, h, E3Data.element);
 
           elementImages =
           [
@@ -349,9 +344,7 @@ function attackUnit(boxX, boxY, i)
         && Math.abs(x) + Math.abs(y) == 1)
         {
             moveUnit(originalUnit, boxX + x, boxY + y);
-            units[i].health = 0;
-            selectedUnits[i] = false;
-            unitsTurnDone[originalUnit] = true;
+            attackDamageCalc(originalUnit, i);
             break;
         }
       }
@@ -360,6 +353,90 @@ function attackUnit(boxX, boxY, i)
   }
 
   resetSelection();
+}
+
+function attackDamageCalc(attacker, target)
+{
+  switch (units[attacker].element) {
+    case "Fire":
+    if (units[target].element == "Fire")
+    {
+      attack(attacker, target, 0);
+    }
+
+    else if (units[target].element == "Ice")
+    {
+      attack(attacker, target, 1);
+    }
+
+    else if (units[target].element == "Wind")
+    {
+      attack(attacker, target, -1);
+    }
+
+    else
+      {
+        console.log("Not reading targets element!");
+      }
+    break;
+
+    case "Ice":
+    if (units[target].element == "Fire")
+    {
+      attack(attacker, target, -1);
+    }
+
+    else if (units[target].element == "Ice")
+    {
+      attack(attacker, target, 0);
+    }
+
+    else if (units[target].element == "Wind")
+    {
+      attack(attacker, target, 1);
+    }
+
+    else
+      {
+        console.log("Not reading targets element!");
+      }
+
+    break;
+
+    case "Wind":
+    if (units[target].element == "Fire")
+    {
+      attack(attacker, target, 1);
+    }
+
+    else if (units[target].element == "Ice")
+    {
+      attack(attacker, target, -1);
+    }
+
+    else if (units[target].element == "Wind")
+    {
+      attack(attacker, target, 0);
+    }
+
+    else
+      {
+        console.log("Not reading targets element!");
+      }
+      break;
+    default:
+    console.log("Error! Unknown Element! " + units[attacker].element);
+    break;
+
+  }
+}
+
+function attack(attacker, target, modifier)
+{
+  var damage = 0;
+
+  damage = units[attacker].attack + modifier;
+  units[target].health -= damage;
 }
 
 function selectAUnit(boxX, boxY, unitInside)
@@ -573,11 +650,18 @@ function unitDetails()
   {
     if (selectedUnits[a])
     {
+        var healthPercent = 0;
+
+        healthPercent = (units[a].health / units[a].maxHealth) * 96;
         dropDownWindow.style.visibility = "visible";
-        document.getElementById("unit range").innerHTML = "Range: " + units[a].range;
-        document.getElementById("unit movement").innerHTML = "Speed: " + units[a].movement;
-        document.getElementById("unit attack").innerHTML = "Attack: " + units[a].attack;
-        document.getElementById("unit health").innerHTML = units[a].health + "/" + units[a].maxHealth;
+
+        document.getElementById("unit-name").innerHTML = units[a].name;
+        document.getElementById("unit-range").innerHTML = "Range: " + units[a].range;
+        document.getElementById("unit-movement").innerHTML = "Speed: " + units[a].movement;
+        document.getElementById("unit-attack").innerHTML = "Attack: " + units[a].attack;
+        document.getElementById("healthNumbers").innerHTML = units[a].health + "/" + units[a].maxHealth;
+        document.getElementById("unit-health").style.width = healthPercent.toString() + "%";
+        ;
 
       switch (units[a].element) {
         case "Fire":
@@ -602,7 +686,7 @@ function animateUnitMovement()
 {
   //console.log(units[0].x + ", " + units[0].destinationX);
   //console.log(units[0].y + ", " + units[0].destinationY);
-  for (var a = 0; a < 3; a++)
+  for (var a = 0; a < numOfUnits; a++)
   {
       if (units[a].x > units[a].destinationX + 0.05)
       {
@@ -632,6 +716,7 @@ function animateUnitMovement()
       {
         units[a].y = units[a].destinationY;
       }
+
   }
 }
 
@@ -649,7 +734,10 @@ function playerTurnManagement()
 
     for (var i = 0; i < 3; i++)
     {
-      unitsTurnDone[i] = false;
+      if (units[i].health > 0)
+      {
+        unitsTurnDone[i] = false;
+      }
     }
   }
 
@@ -674,9 +762,10 @@ function playerTurnManagement()
 
 function enemyTurnManagement()
 {
+  var startTurn = true;
   if (gameStates[0].screen != "Enemy")
   {
-    gameStates[0].screen = "Enemy";
+    gameStates[0] = new GameState("Enemy");
     const buttons = document.querySelectorAll('button');
 
     for (var i = 0; i < buttons.length; i++)
@@ -684,29 +773,38 @@ function enemyTurnManagement()
       buttons[i].disabled = true;
     }
 
-    for (var i = 0; i < 3; i++)
+    for (var i = 3; i < numOfUnits; i++)
     {
-      unitsTurnDone[i] = false;
+      if (units[i].health > 0)
+      {
+        unitsTurnDone[i - 3] = false;
+      }
     }
-
   }
 
-  else
+for (var j = 0; j < 3; j++)
+{
+  if (units[j].y != units[j].destinationY ||
+  units[j].x != units[j].destinationX)
   {
-    var enemiesTurnDone = true;
-    for (var i = 0; i < 3; i++)
+    startTurn = false;
+    break;
+  }
+}
+
+  if (startTurn)
+  {
+    for (var i = 3; i < numOfUnits; i++)
     {
-      if (!unitsTurnDone[i])
+      if (units[i].health > 0)
       {
-        enemiesTurnDone = false;
-        break;
+          enemyDistanceCalculation(i);
+          unitsTurnDone[i - 3] = true;
       }
     }
 
-   if (enemiesTurnDone)
-     {
      gameStates[1] = new GameState("Player");
-     }
+
   }
 }
 
@@ -728,45 +826,225 @@ function turnManagement()
   }
 }
 
-function enemyDistanceCalculation(i)
+function enemyCalcClosestWorkAround(i, onYAxis, walkAroundDistance, walkAroundIndex, target)
 {
-  var closest = 0;
-  var distances = [0,0,0];
+  var addon = 0;
+    var closest = 0;
 
-  for (var j = 0; j < 3; j++)
+  for (var a = 0; a < walkAroundDistance.length; a++)
   {
-    distances[j] = Math.abs(units[i].x - units[j].x) + Math.abs(units[i].y - units[j].y);
-
-    if (distances[closest] > distances[j])
+    if (walkAroundDistance[walkAroundIndex[a]] < walkAroundDistance[closest])
     {
-      closest = j;
+      closest = a;
     }
   }
 
-  if (units[j].x > units[j].x && colours[units[j].x + 1][units[j].y] != boxTypes[1][0])
+  if (onYAxis)
   {
-    units[i].destinationX = units[j].x + 1;
+
+    if (closest > units[i].x && colours[units[i].y][closest] != boxTypes[1][0])
+    {
+      addon = 1;
+    }
+
+    else
+    {
+      addon = -1;
+    }
+    units[i].destinationX = units[i].x + addon;
   }
 
-  else if (units[j].x < units[j].x && colours[units[j].x - 1][units[j].y] != boxTypes[1][0])
+  else
+   {
+
+     if (closest > units[i].y && colours[closest][units[i].x] != boxTypes[1][0])
+     {
+       addon = 1;
+     }
+
+     else
+     {
+       addon = -1;
+     }
+
+    units[i].destinationY = units[i].y + addon;
+  }
+}
+
+function enemyWorkAround(i, addon, onYAxis, target)
+{
+  var walkAroundIndex = [];
+  var walkAroundDistance = [];
+
+  if (onYAxis)
   {
-    units[i].destinationX = units[j].x - 1;
+    for (var k = 0; k < box.col; k++)
+    {
+        if (colours[units[i].y + addon][k] != boxTypes[1][0])
+        {
+            walkAroundIndex.push(k);
+            walkAroundDistance.push(Math.abs(units[target].x - k));
+        }
+    }
   }
 
-  else if (units[j].x > units[j].x && colours[units[j].x + 1][units[j].y] != boxTypes[1][0])
-  {
+  else
+    {
+      for (var k = 0; k < box.rows; k++)
+      {
+          if (colours[k][units[i].x + addon] != boxTypes[1][0])
+          {
+            walkAroundIndex.push(k);
+            walkAroundDistance.push(Math.abs(units[target].y - k));
+          }
+      }
 
+    }
+
+    enemyCalcClosestWorkAround(i, onYAxis, walkAroundDistance, walkAroundIndex, target);
+}
+
+function collidingWithAnotherEnemy(addonX, addonY, index)
+{
+  var collided = false;
+
+  for (var i = 3; i < numOfUnits; i++)
+  {
+    if (i == index)
+    {
+      continue;
+    }
+
+    else if (units[index].y + addonY == units[i].destinationY &&
+      units[index].x + addonX == units[i].destinationX)
+    {
+      collided = true;
+      break;
+    }
   }
 
-  else if (units[j].x > units[j].x && colours[units[j].x + 1][units[j].y] != boxTypes[1][0])
-  {
+  return collided;
+}
 
+function enemyMoveLeft(i, j)
+{
+  if(colours[units[i].y][units[i].x - 1] != boxTypes[1][0] &&
+    !collidingWithAnotherEnemy(-1, 0, i))
+  {
+    units[i].destinationX = units[i].x - 1;
   }
 
   else
   {
+    enemyWorkAround(i, -1, false, j);
 
   }
+}
+
+function enemyMoveRight(i, j)
+{
+  if (colours[units[i].y][units[i].x + 1] != boxTypes[1][0] &&
+    !collidingWithAnotherEnemy(1, 0, i))
+  {
+      units[i].destinationX = units[i].y + 1;
+  }
+
+  else {
+    enemyWorkAround(i, 1, false, j);
+  }
+
+}
+
+function enemyMoveUp(i, j)
+{
+  if (colours[units[i].y - 1][units[i].x] != boxTypes[1][0]
+  && !collidingWithAnotherEnemy(0, -1, i))
+  {
+
+  units[i].destinationY = units[i].y - 1;
+  }
+
+  else
+    {
+        enemyWorkAround(i, -1, true, j);
+    }
+}
+
+function enemyMoveDown(i, j)
+{
+  if (colours[units[i].y + 1][units[i].x] != boxTypes[1][0] &&
+    !collidingWithAnotherEnemy(0, 1, i))
+  {
+        units[i].destinationY = units[i].y + 1;
+  }
+
+  else
+    {
+      enemyWorkAround(i, 1, true, j);
+    }
+}
+
+function enemyDistanceCalculation(i)
+{
+
+  if (units[i].x == units[i].destinationX && units[i].y == units[i].destinationY && !unitsTurnDone[i - 3])
+  {
+    var closest = 0;
+    var distances = [0,0,0];
+
+    for (var j = 0; j < 3; j++)
+    {
+      if (units[j].health > 0)
+      {
+        closest = j;
+        break;
+      }
+    }
+
+    for (var j = 0; j < 3; j++)
+    {
+      distances[j] = Math.abs(units[i].x - units[j].x) + Math.abs(units[i].y - units[j].y);
+
+      if (distances[closest] > distances[j] && units[j].health > 0)
+      {
+        closest = j;
+      }
+    }
+
+if (distances[closest] > 1)
+{
+    if (units[closest].y > units[i].y)
+    {
+       enemyMoveDown(i, closest);
+    }
+
+    else if (units[closest].y < units[i].y)
+    {
+      enemyMoveUp(i, closest);
+    }
+
+    else if (units[closest].x > units[i].x)
+    {
+        enemyMoveRight(i, closest);
+    }
+
+    else if (units[closest].x < units[i].x)
+    {
+      enemyMoveLeft(i, closest);
+    }
+  }
+
+  else
+    {
+      enemyAttack(closest,i);
+    }
+  }
+}
+
+function enemyAttack(closest,i)
+{
+  attackDamageCalc(i, closest);
+
 }
 
 function EndTurn()
@@ -775,13 +1053,85 @@ function EndTurn()
   {
     unitsTurnDone[i] = true;
   }
+
+  resetSelection();
 }
 
 function update()
 {
-  turnManagement();
-  unitDetails();
-  animateUnitMovement();
+  if (gameStates[1].screen === "Player" ||
+      gameStates[1].screen === "Enemy")
+  {
+    turnManagement();
+    unitDetails();
+    animateUnitMovement();
+    gameOverCheck();
+  }
+
+
+  else
+  {
+
+  }
+}
+
+function gameOverCheck()
+{
+  var gameIsFinished = true;
+
+  for (var i = 0; i < 3; i++)
+  {
+    if (units[i].health > 0)
+    {
+      gameIsFinished = false;
+      break;
+    }
+  }
+
+  if (gameIsFinished)
+  {
+    roundEnd();
+    playerLost();
+  }
+
+ gameIsFinished = true;
+
+  for (var i = 3; i < numOfUnits; i++)
+  {
+    if (units[i].health > 0)
+    {
+      gameIsFinished = false;
+      break;
+    }
+  }
+
+  if (gameIsFinished)
+  {
+    roundEnd();
+    playerWon();
+  }
+}
+
+function switchToGameplay()
+{
+  gameStates[1] = new GameState("Player");
+  document.getElementById("form").style.visibility = "hidden";
+  document.getElementById("gameplay").style.visibility = "visible";
+
+  var unitNames =
+  [
+   document.getElementById("unit1Name").value,
+   document.getElementById("unit2Name").value,
+   document.getElementById("unit3Name").value
+ ];
+
+  for (var i = 0; i < 3; i++)
+  {
+    if (unitNames[i].length > 0)
+    {
+      units[i].name = unitNames[i];
+    }
+  }
 }
 
 function displayWindowSize()
@@ -792,7 +1142,6 @@ function displayWindowSize()
 
    if (canvas.width > window.outerWidth)
    {
-       console.log("test");
      canvas.width  = window.outerWidth;
      canvas.height = (window.outerWidth / 5.0) * 7.0;
    }
@@ -808,11 +1157,6 @@ function displayWindowSize()
      units[i].width = box.width / 3;
      units[i].height = box.height / 1.5;
    }
-}
-
-function EnemyTurnStart()
-{
-  playersTurn = false;
 }
 
 // Draw GameObjects to Console
@@ -870,6 +1214,88 @@ function gameloop()
     window.requestAnimationFrame(gameloop);
 }
 
+function playerLost()
+{
+  document.body.style.backgroundColor = "darkslategray";
+  var lostText = document.getElementById("announcementText");
+
+  var message = "Game Over";
+  message = message.bold();
+
+  lostText.style.color = "tomato";
+  lostText.innerHTML = message;
+  document.getElementById("endButtons").disabled = false;
+}
+
+function playerWon()
+{
+  document.body.style.backgroundColor = "forestgreen";
+
+  var wonText = document.getElementById("announcementText");
+
+  var message = "You Win";
+  message = message.bold();
+  lostText.style.color = "black";
+
+  wonText.innerHTML = message;
+  document.getElementById("endButtons").disabled = false;
+}
+
+function roundEnd()
+{
+  gameStates[1] = new GameState("End");
+  var message = document.getElementById("announcementText");
+    message.style.fontSize = "12vh";
+    message.style.top = "10%";
+
+  document.getElementById("gameplay").style.visibility = "hidden";
+  var button = document.getElementById("endButtons");
+  button.style.visibility = "visible";
+  message.style.visibility = "visible";
+}
+
+function reset()
+{
+  document.getElementById("endButtons").style.visibility = "hidden";
+  document.getElementById("gameplay").style.visibility = "visible";
+  document.getElementById("announcementText").style.visibility = "hidden";
+  document.getElementById("endButtons").style.visibility = "hidden";
+
+  xmlhttp.open("GET", "./data/level.json", true);
+  xmlhttp.send();
+
+    xmlhttp.onreadystatechange = function ()
+    {
+      if (this.readyState == 4 && this.status == 200) // if response is ready and contents are "OK"
+      {
+
+        data = JSON.parse(this.responseText);
+
+        var unitsValues = [
+          data.units.Unit1,
+          data.units.Unit2,
+          data.units.Unit3,
+          data.units.Enemy1,
+          data.units.Enemy2,
+          data.units.Enemy3
+        ];
+
+          for (var i = 0; i < numOfUnits; i++)
+          {
+            units[i].x = unitsValues[i].position.x;
+            units[i].y = unitsValues[i].position.y;
+            units[i].destinationX = unitsValues[i].position.x;
+            units[i].destinationY = unitsValues[i].position.y;
+            units[i].health = unitsValues[i].health;
+          }
+
+          gameStates[0] = new GameState("Menu");
+          gameStates[1] = new GameState("Player");
+
+        document.body.style.backgroundColor = "white";
+      }
+    };
+}
 // Handle Active Browser Tag Animation
 window.requestAnimationFrame(gameloop);
 window.addEventListener("resize", displayWindowSize);

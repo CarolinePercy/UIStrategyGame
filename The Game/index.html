@@ -21,26 +21,24 @@
 
 <body onload="onPageLoad()">
 
+<div id="gameplay">
   <div class="row" id="dropBox">
     <div class="column">
-        <p id="unit name">Unit 1</p>
-        <div id="unit health"class="healthBar">20/20</div>
+        <p id="unit-name">Unit 1</p>
+            <div id="emptyHealth" class="emptyBar">
+              <div id="unit-health" class="healthBar"></div>
+              <p id="healthNumbers" class="healthDetails">20/20</p>
+            </div>
     </div>
     <div class="column">
-        <p id="unit range">Range: 2</p>
-        <p id="unit movement">Speed: 1</p>
-            <p id="unit attack">Attack: 3</p>
+        <p id="unit-range">Range: 2</p>
+        <p id="unit-movement">Speed: 1</p>
+            <p id="unit-attack">Attack: 3</p>
     </div>
     <div class="column">
         <p>Element</p>
-        <img id="closeUp" alt="Element of currently selected Unit"></img>
+        <img id="closeUp" alt="Element of currently selected Unit">
     </div>
-</div>
-
-
-
-<div class="rightInfo">
-
 </div>
    <div style = "text-align:center;">
     <canvas tabindex="0" id="game" style="border: black 1px solid;"
@@ -53,15 +51,40 @@
         <tbody>
             <tr>
                 <td>&nbsp;</td>
-                <td><button class="button yellow round" onmouseup="EndTurn()">End Turn</button></td>
+                <td><button class="button yellow round" onmouseup="EndTurn()">End<br>Turn</button></td>
                 <td>&nbsp;</td>
-                <td><button onmousedown="input()" class="button blue round"onmouseup="input('None')">Settings</button></td>
+                <td><button onmousedown="input()" class="button blue round" onmouseup="input('None')">Settings</button></td>
                 <td>&nbsp;</td>
-                <td><button onmousedown="input()" class="button red round"onmouseup="input('None')">Predict</button></td>
+                <td><button onmousedown="input()" class="button red round" onmouseup="input('None')">Predict</button></td>
+                <td>&nbsp;</td>
+                <td><img src="./img/cycle.png" class="cycle" alt="Elements weaknesses and strengths"></td>
             </tr>
         </tbody>
     </table>
+</div>
 
+<form action="" method="get" class="unitSelection" id="form">
+
+<p class="announcementText" id="announcementText">Name your Units</p>
+
+ <label for="unit1Name" class="hidden">The first unit's name</label>
+<label for="unit2Name" class="hidden">The second unit's name</label>
+ <label for="unit3Name" class="hidden">The third unit's name</label>
+
+<input type="text" name="unit1Name" id="unit1Name" value="Unit 1" class="textbox top"><br>
+<input type="text" name="Unit2Name" id="unit2Name" value="Unit 2" class="textbox middle"><br>
+<input type="text" name="Unit3Name" id="unit3Name" value="Unit 3" class="textbox bottom"><br>
+
+
+
+<button type= "reset" class="button round white left">Reset</button>
+<button type= "button" class="button round white right" onmouseup="switchToGameplay();">Submit</button>
+
+</form>
+
+<div id="endButtons" class="container hidden">
+  <button class="button round white" onmouseup="reset();">Replay</button>
+</div>
 </body>
 
     <!--JavaScript File-->
