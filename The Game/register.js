@@ -5,7 +5,7 @@ window.onload = () =>
     if ('serviceWorker' in navigator)
     {
       navigator.serviceWorker
-               .register('./service_worker.js');
+               .register('./The Game/service_worker.js');
     }
     onPageLoad();
   }

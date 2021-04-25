@@ -1,9 +1,9 @@
 var cacheName = 'bikeGame-pwa';
 var filesToCache = [
-  './',
-  './index.html',
-  './css/push.css',
-  './js/script.js'
+  './The Game/',
+  './The Game/index.html',
+  './The Game/css/push.css',
+  './The Game/js/script.js'
 ];
 
 /* Cache contents when Offline See Cache */
