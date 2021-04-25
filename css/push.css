@@ -208,3 +208,18 @@ top:60%;
   height: 100%;
   top:0vh;
 }
+
+label[for="unit3Name"]
+{
+    font-size: 0px;
+}
+
+label[for="unit2Name"]
+{
+    font-size: 0px;
+}
+
+label[for="unit1Name"]
+{
+    font-size: 0px;
+}
