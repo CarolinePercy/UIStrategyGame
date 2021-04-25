@@ -169,7 +169,14 @@ var localStorageNames = [
   'enemy3Health'
 ];
 
-var localStorageValues = [];
+  var localStorageValues = [];
+
+  for (var i = 0; i < localStorageNames.length; i++)
+  {
+    localStorageValues.push(parseInt(localStorage.getItem(localStorageNames[i])));
+
+    //console.log(localStorageValues[i]);
+  }
 
 function onPageLoad()
 {
@@ -192,11 +199,16 @@ function onPageLoad()
 
           var h = 40;
           var w = 40;
+          //var localStorageValues = [];
 
-          for (var i = 0; i < localStorageNames.length; i++)
-          {
-            localStorageValues.push(parseInt(localStorage.getItem(localStorageNames[i])));
-          }
+          // for (var i = 0; i < localStorageNames.length; i++)
+          // {
+          //   localStorageValues.push(parseInt(localStorage.getItem(localStorageNames[i])));
+          //
+          //   console.log(localStorageValues[i]);
+          //   console.log(localStorageNames[i]);
+          //   console.log(localStorage.getItem(localStorageNames[i]));
+          // }
 
           var unitsValues = [
             data.units.Unit1,
@@ -212,9 +224,13 @@ function onPageLoad()
               if (isNaN(localStorageValues[j]) || isNaN(localStorageValues[j + 1]) || isNaN(localStorageValues[j + 2]) ||
               (localStorageValues[j] == 0 && localStorageValues[j + 1] == 0 && localStorageValues[j + 2] == 0))
               {
-                localStorage.setItem(localStorageNames[j], parseInt(units[i].x));
-                localStorage.setItem(localStorageNames[j + 1], parseInt(units[i].y));
-                localStorage.setItem(localStorageNames[j + 2], parseInt(units[i].health));
+                console.log(localStorageValues[j]);
+                console.log(localStorageValues[j + 1]);
+                console.log(localStorageValues[j + 2]);
+
+                localStorage.setItem(localStorageNames[j], parseInt(unitsValues[i].position.x));
+                localStorage.setItem(localStorageNames[j + 1], parseInt(unitsValues[i].position.y));
+                localStorage.setItem(localStorageNames[j + 2], parseInt(unitsValues[i].health));
 
                 localStorageValues[j] = parseInt(localStorage.getItem(localStorageNames[j]));
                 localStorageValues[j + 1] = parseInt(localStorage.getItem(localStorageNames[j + 1]));
@@ -1232,23 +1248,29 @@ function animate()
 
 function updatePlayerStorage()
 {
-  localStorage.setItem('Unit1xPos', parseInt(units[0].x));
-  localStorage.setItem('Unit1yPos', parseInt(units[0].y));
-
-  localStorage.setItem('Unit2xPos', parseInt(units[1].x));
-  localStorage.setItem('Unit2yPos', parseInt(units[1].y));
-
-  localStorage.setItem('Unit3xPos', parseInt(units[2].x));
-  localStorage.setItem('Unit3yPos', parseInt(units[2].y));
-
-  localStorage.setItem('Enemy1xPos', parseInt(units[3].x));
-  localStorage.setItem('Enemy1xPos', parseInt(units[3].y));
-
-  localStorage.setItem('Enemy2xPos', parseInt(units[4].x));
-  localStorage.setItem('Enemy2xPos', parseInt(units[4].y));
-
-  localStorage.setItem('Enemy3xPos', parseInt(units[5].x));
-  localStorage.setItem('Enemy3xPos', parseInt(units[5].y));
+  for (var i = 0, j = 0; i < numOfUnits; i++, j += 3)
+  {
+    localStorage.setItem(localStorageNames[j], parseInt(units[i].x));
+    localStorage.setItem(localStorageNames[j + 1], parseInt(units[i].y));
+    localStorage.setItem(localStorageNames[j + 2], parseInt(units[i].health));
+  }
+  // localStorage.setItem('Unit1xPos', parseInt(units[0].x));
+  // localStorage.setItem('Unit1yPos', parseInt(units[0].y));
+  //
+  // localStorage.setItem('Unit2xPos', parseInt(units[1].x));
+  // localStorage.setItem('Unit2yPos', parseInt(units[1].y));
+  //
+  // localStorage.setItem('Unit3xPos', parseInt(units[2].x));
+  // localStorage.setItem('Unit3yPos', parseInt(units[2].y));
+  //
+  // localStorage.setItem('Enemy1xPos', parseInt(units[3].x));
+  // localStorage.setItem('Enemy1xPos', parseInt(units[3].y));
+  //
+  // localStorage.setItem('Enemy2xPos', parseInt(units[4].x));
+  // localStorage.setItem('Enemy2xPos', parseInt(units[4].y));
+  //
+  // localStorage.setItem('Enemy3xPos', parseInt(units[5].x));
+  // localStorage.setItem('Enemy3xPos', parseInt(units[5].y));
 }
 
 // Gameloop that is forever gone through until program closes
@@ -1280,7 +1302,7 @@ function playerWon()
 
   var message = "You Win";
   message = message.bold();
-  lostText.style.color = "black";
+  wonText.style.color = "black";
 
   wonText.innerHTML = message;
   document.getElementById("endButtons").disabled = false;
