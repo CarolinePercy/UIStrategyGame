@@ -4,7 +4,7 @@ var filesToCache = [
   './index.html',
   './css/push.css',
   './js/script.js'
-];
+  ];
 
 /* Cache contents when Offline See Cache */
 self.addEventListener('install', function(e) {
