@@ -143,6 +143,34 @@ var units =
   new Unit("./favicon.ico", 0,0,0,0,0,0, "",0,0, "Fire")
 ];
 
+var localStorageNames = [
+  'unit1xPos',
+  'unit1yPos',
+  'unit1Health',
+
+  'unit2xPos',
+  'unit2yPos',
+  'unit2Health',
+
+  'unit3xPos',
+  'unit3yPos',
+  'unit3Health',
+
+  'enemy1xPos',
+  'enemy1yPos',
+  'enemy1Health',
+
+  'enemy2xPos',
+  'enemy2yPos',
+  'enemy2Health',
+
+  'enemy3xPos',
+  'enemy3yPos',
+  'enemy3Health'
+];
+
+var localStorageValues = [];
+
 function onPageLoad()
 {
   document.getElementById("gameplay").style.visibility = "hidden";
@@ -162,15 +190,13 @@ function onPageLoad()
 
         data = JSON.parse(this.responseText);
 
-          //if (isNaN(playerXPos) || isNaN(playerYPos) || (playerXPos == 0 && playerYPos == 0) )
-          //{
-          //  localStorage.setItem('xPos', parseInt(U1Data.position.x));
-          //  localStorage.setItem('yPos', parseInt(U1Data.position.y));
-          //  playerXPos = parseInt(localStorage.getItem('xPos'));
-          //  playerYPos = parseInt(localStorage.getItem('yPos'))
-          //}
           var h = 40;
           var w = 40;
+
+          for (var i = 0; i < localStorageNames.length; i++)
+          {
+            localStorageValues.push(parseInt(localStorage.getItem(localStorageNames[i])));
+          }
 
           var unitsValues = [
             data.units.Unit1,
@@ -181,10 +207,23 @@ function onPageLoad()
             data.units.Enemy3
           ];
 
-            for (var i = 0; i < numOfUnits; i++)
+            for (var i = 0, j = 0; i < numOfUnits; i++, j += 3)
             {
-              units[i] = new Unit(data.units.image, unitsValues[i].position.x, unitsValues[i].position.y,
-              unitsValues[i].health, unitsValues[i].range, unitsValues[i].attack, unitsValues[i].movement, unitsValues[i].name, w, h, unitsValues[i].element);
+              if (isNaN(localStorageValues[j]) || isNaN(localStorageValues[j + 1]) || isNaN(localStorageValues[j + 2]) ||
+              (localStorageValues[j] == 0 && localStorageValues[j + 1] == 0 && localStorageValues[j + 2] == 0))
+              {
+                localStorage.setItem(localStorageNames[j], parseInt(units[i].x));
+                localStorage.setItem(localStorageNames[j + 1], parseInt(units[i].y));
+                localStorage.setItem(localStorageNames[j + 2], parseInt(units[i].health));
+
+                localStorageValues[j] = parseInt(localStorage.getItem(localStorageNames[j]));
+                localStorageValues[j + 1] = parseInt(localStorage.getItem(localStorageNames[j + 1]));
+                localStorageValues[j + 2] = parseInt(localStorage.getItem(localStorageNames[j + 2]));
+              }
+
+              units[i] = new Unit(data.units.image, localStorageValues[j], localStorageValues[j + 1],
+              localStorageValues[j + 2], unitsValues[i].range, unitsValues[i].attack, unitsValues[i].movement,
+              unitsValues[i].name, w, h, unitsValues[i].element);
             }
 
           //  for (var i = 0; i < 3; i++)
@@ -1068,10 +1107,16 @@ function update()
     gameOverCheck();
   }
 
+  updatePlayerStorage();
+}
 
-  else
+function updatePlayerStorage()
+{
+  for (var i = 0, j = 0; i < numOfUnits; i++, j += 3)
   {
-
+      localStorage.setItem(localStorageNames[j], parseInt(units[i].x));
+      localStorage.setItem(localStorageNames[j + 1], parseInt(units[i].y));
+      localStorage.setItem(localStorageNames[j + 2], parseInt(units[i].health));
   }
 }
 
